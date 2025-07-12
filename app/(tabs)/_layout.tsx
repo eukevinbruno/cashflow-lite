@@ -31,6 +31,11 @@ export default function TabLayout() {
         tabBarIconStyle: {
           justifyContent: 'center',
           alignItems: 'center',
+          // Certifique-se de que não há nenhuma margem negativa ou posicionamento absoluto aqui
+          // que possa estar "empurrando" o ícone para fora da visualização
+          // Remove any previous explicit marginTop/marginBottom if they were set here
+          marginTop: 0,
+          marginBottom: 0,
         }
       }}>
       {/* 1. Início */}
@@ -64,7 +69,7 @@ export default function TabLayout() {
               <Ionicons name="add" size={30} color={focused ? '#fff' : Colors[colorScheme ?? 'light'].tabIconDefault} />
             </View>
           ),
-          tabBarLabel: () => null,
+          tabBarLabel: () => null, // Ocultar o label para este botão
         }}
       />
       {/* 4. Extrato */}
@@ -79,8 +84,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile" // O nome do arquivo da tela é 'profile.tsx'
         options={{
-          title: 'Conta', // O rótulo da aba será 'Conta'
-          tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={24} color={color} />, // Ícone de pessoa
+          title: 'Conta', // <--- Garante que o rótulo seja 'Conta'
+          tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={24} color={color} />, // <--- Garante que o ícone seja 'person-outline'
         }}
       />
     </Tabs>
@@ -102,9 +107,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    overflow: 'hidden',
+    overflow: 'visible', // Permite que o botão central não seja cortado
     paddingHorizontal: 10,
-    paddingBottom: Platform.OS === 'ios' ? 20 : 0, // Espaço para a safe area no iOS
+    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
   iosTabBar: {
     backgroundColor: 'transparent',
@@ -119,11 +124,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     justifyContent: 'center',
     alignItems: 'center',
-    // Ajuste aqui para garantir que o botão não seja cortado
-    // O valor exato pode variar ligeiramente, mas -30px (marginTop) e 20px (marginBottom) ou mais
-    // no iOS e menos no Android geralmente funcionam bem.
-    marginBottom: Platform.OS === 'ios' ? 20 : 0, // Aumentado para dar mais espaço embaixo do botão no iOS
-    marginTop: Platform.OS === 'ios' ? -35 : -25, // Levanta mais o botão para compensar o corte e centralizar
+    marginBottom: Platform.OS === 'ios' ? 20 : 0,
+    marginTop: Platform.OS === 'ios' ? -30 : -20, // Ajuste para levantar o botão
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,

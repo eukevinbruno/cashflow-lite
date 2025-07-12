@@ -1,10 +1,9 @@
 // mobile/app/(tabs)/profile.tsx
-import React, { useState } from 'react';
-import { StyleSheet, Switch, TouchableOpacity, Alert, ScrollView, ActivityIndicator, Platform, View } from 'react-native'; // Adicionado Platform
-import api from '@/services/api';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
+import React, { useState } from 'react';
+import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Switch, TouchableOpacity, View } from 'react-native'; // Adicionado Platform
 
 const ProfileScreen = () => {
   const [isDASActive, setIsDASActive] = useState(false);
