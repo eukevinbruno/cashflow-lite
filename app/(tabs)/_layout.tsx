@@ -2,7 +2,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native'; // <--- ADICIONAR PLATFORM AQUI
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context'; // Importar useSafeAreaInsets
 
 import { HapticTab } from '@/components/HapticTab';
@@ -82,10 +83,10 @@ export default function TabLayout() {
       />
       {/* 5. Conta */}
       <Tabs.Screen
-        name="profile" // O nome do arquivo da tela é 'profile.tsx'
+        name="profile"
         options={{
-          title: 'Conta', // O rótulo da aba será 'Conta'
-          tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={24} color={color} />, // Ícone de pessoa
+          title: 'Conta',
+          tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={24} color={color} />,
         }}
       />
     </Tabs>
@@ -124,9 +125,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     justifyContent: 'center',
     alignItems: 'center',
-    // Ajuste de margem para o botão central ficar visivelmente "separado" da navbar
-    marginBottom: Platform.OS === 'ios' ? 10 : 0, // Ajustar para mais espaço entre o botão e a base da tela no iOS
-    marginTop: Platform.OS === 'ios' ? -35 : -25, // Levanta o botão. Ajuste este valor para centralizar verticalmente.
+    marginBottom: Platform.OS === 'ios' ? 20 : 0,
+    marginTop: Platform.OS === 'ios' ? -30 : -20, // Ajuste para levantar o botão
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
