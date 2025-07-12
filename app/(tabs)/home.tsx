@@ -1,28 +1,38 @@
-// mobile/app/(tabs)/home.tsx (APENAS A SEÇÃO balanceCard E STYLES RELACIONADOS)
+// mobile/app/(tabs)/home.tsx
+import { Ionicons } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Dimensions, RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
-import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+
+const screenWidth = Dimensions.get('window').width;
 
 const HomeScreen = () => {
   const [balance, setBalance] = useState<number | null>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [monthlyIncome, setMonthlyIncome] = useState<number | null>(null);
+  const [monthlyExpense, setMonthlyExpense] = useState<number | null>(null);
+  const [transactions, setTransactions] = useState<any[]>([]); // Limitar a 4 no fetch ou na renderização
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [showBalance, setShowBalance] = useState(true);
+  const [showBalance, setShowBalance] = useState(true); // Estado para ocultar/mostrar saldo
 
   const fetchDashboardData = async () => {
     try {
+      // Dados mockados para simular um dashboard mais completo
       setBalance(5432.75);
-      setTransactions([
-        { id: '1', description: 'Venda de consultoria', value: 2500.00, type: 'entrada', date: '2025-07-10' },
-        { id: '2', description: 'Aluguel do escritório', value: -1200.00, type: 'saida', date: '2025-07-08' },
-        { id: '3', description: 'Freelance Design', value: 1800.00, type: 'entrada', date: '2025-07-05' },
-        { id: '4', description: 'Material de escritório', value: -150.00, type: 'saida', date: '2025-07-03' },
-      ]);
+      setMonthlyIncome(4800.00); // Ex: total de entradas do mês
+      setMonthlyExpense(1500.00); // Ex: total de saídas do mês
+      const fetchedTransactions = [
+        { id: '1', description: 'Consultoria Web - Projeto X', value: 2500.00, type: 'entrada', date: '2025-07-10' },
+        { id: '2', description: 'Aluguel Co-working Espaço Z', value: -1200.00, type: 'saida', date: '2025-07-08' },
+        { id: '3', description: 'Projeto App Mobile - Cliente Y', value: 1800.00, type: 'entrada', date: '2025-07-05' },
+        { id: '4', description: 'Material Escritório - Papelaria', value: -150.00, type: 'saida', date: '2025-07-03' },
+        { id: '5', description: 'Marketing Digital - Campanha', value: -300.00, type: 'saida', date: '2025-07-01' },
+        { id: '6', description: 'Venda de e-Book', value: 100.00, type: 'entrada', date: '2025-06-28' },
+      ];
+      setTransactions(fetchedTransactions.slice(0, 4)); // Limita às últimas 4 transações
     } catch (error) {
       console.error('Erro ao buscar dados do dashboard:', error);
     } finally {
@@ -61,40 +71,86 @@ const HomeScreen = () => {
     >
       <ThemedText type="title" style={styles.header}>Olá, Autônomo!</ThemedText>
 
-      <ThemedView style={styles.balanceCard}>
+      {/* Novo Card de Saldo Central - Estilo Dinâmico */}
+      <ThemedView style={styles.newBalanceCard}>
         <View style={styles.balanceCardTopRow}>
-          <ThemedText style={styles.balanceLabel}>Saldo Atual</ThemedText>
-          <TouchableOpacity onPress={() => console.log('Navegar para extrato')} style={styles.extractButtonTop}>
-            <ThemedText style={styles.extractButtonTextTop}>Ir ao extrato</ThemedText>
-            <Ionicons name="chevron-forward-outline" size={16} color="#fff" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.balanceValueWithToggle}>
-          <View style={styles.balanceValueWrapper}>
-            <ThemedText style={styles.currencySymbol}>R$</ThemedText>
-            <ThemedText style={styles.balanceValue}>
-              {balance ? balance.toFixed(2).replace('.', ',') : '0,00'}
-            </ThemedText>
-            {!showBalance && (
-              <BlurView intensity={25} tint="dark" style={StyleSheet.absoluteFillObject} />
-            )}
-          </View>
-          <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.eyeIconContainer}>
+          <ThemedText style={styles.newBalanceLabel}>Seu Saldo Atual</ThemedText>
+          <TouchableOpacity onPress={toggleBalanceVisibility} style={styles.newEyeIconContainer}>
             <Ionicons
               name={showBalance ? 'eye-outline' : 'eye-off-outline'}
-              size={24}
+              size={26}
               color="#fff"
             />
           </TouchableOpacity>
         </View>
 
-        <ThemedText style={styles.yieldText}>
-          <Ionicons name="trending-up-outline" size={16} color="#fff" /> Rende 105% do CDI
-        </ThemedText>
+        <View style={styles.newBalanceValueWrapper}>
+          <ThemedText style={styles.newCurrencySymbol}>R$</ThemedText>
+          {showBalance ? (
+            <ThemedText type="title" style={styles.newBalanceValue}>
+              {balance ? balance.toFixed(2).replace('.', ',') : '0,00'}
+            </ThemedText>
+          ) : (
+            <ThemedText style={styles.newHiddenBalancePlaceholder}>{'*****.**'}</ThemedText>
+          )}
+        </View>
+
+        <TouchableOpacity onPress={() => console.log('Navegar para extrato')} style={styles.newExtractButton}>
+          <ThemedText style={styles.newExtractButtonText}>Ver Extrato Detalhado</ThemedText>
+          <Ionicons name="chevron-forward-outline" size={18} color="#fff" />
+        </TouchableOpacity>
       </ThemedView>
 
-      <ThemedText type="subtitle" style={styles.sectionHeader}>Últimas Transações:</ThemedText>
+      {/* Visão Geral do Mês - Nova Apresentação */}
+      <ThemedText type="subtitle" style={styles.sectionTitle}>Sua Visão Geral do Mês</ThemedText>
+      <ThemedView style={styles.monthlySummaryCard}>
+        <View style={styles.monthlySummaryRow}>
+          <View style={styles.monthlySummaryItem}>
+            <Ionicons name="arrow-up-circle-outline" size={30} color="#28a745" />
+            <ThemedText style={styles.monthlySummaryLabel}>Entradas</ThemedText>
+            <ThemedText style={[styles.monthlySummaryValue, styles.overviewValueIn]}>
+              R$ {monthlyIncome ? monthlyIncome.toFixed(2).replace('.', ',') : '0,00'}
+            </ThemedText>
+          </View>
+          <View style={styles.monthlySummaryItem}>
+            <Ionicons name="arrow-down-circle-outline" size={30} color="#dc3545" />
+            <ThemedText style={styles.monthlySummaryLabel}>Saídas</ThemedText>
+            <ThemedText style={[styles.monthlySummaryValue, styles.overviewValueOut]}>
+              R$ {monthlyExpense ? monthlyExpense.toFixed(2).replace('.', ',') : '0,00'}
+            </ThemedText>
+          </View>
+        </View>
+        <View style={styles.monthlySummaryNetBalance}>
+          <ThemedText style={styles.monthlySummaryNetLabel}>Saldo Líquido do Mês:</ThemedText>
+          <ThemedText style={[styles.monthlySummaryNetValue, (monthlyIncome || 0) - (monthlyExpense || 0) >= 0 ? styles.overviewValueIn : styles.overviewValueOut]}>
+            R$ {((monthlyIncome || 0) - (monthlyExpense || 0)).toFixed(2).replace('.', ',')}
+          </ThemedText>
+        </View>
+      </ThemedView>
+
+      {/* Ações Rápidas - 4 na mesma linha (grade compacta) */}
+      <ThemedText type="subtitle" style={styles.sectionTitle}>Ações Rápidas</ThemedText>
+      <View style={styles.quickActionsGrid}>
+        <TouchableOpacity style={styles.quickActionButton} onPress={() => console.log('Navegar para Adicionar Transação')}>
+          <Ionicons name="add-circle-outline" size={36} color={Colors.light.tint} />
+          <ThemedText style={styles.quickActionButtonText}>Adicionar</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.quickActionButton} onPress={() => console.log('Navegar para Relatórios')}>
+          <Ionicons name="stats-chart-outline" size={36} color={Colors.light.tint} />
+          <ThemedText style={styles.quickActionButtonText}>Relatórios</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.quickActionButton} onPress={() => console.log('Navegar para Gerenciar Investimentos')}>
+          <Ionicons name="trending-up-outline" size={36} color={Colors.light.tint} />
+          <ThemedText style={styles.quickActionButtonText}>Investir</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.quickActionButton} onPress={() => console.log('Navegar para Configurações')}>
+          <Ionicons name="settings-outline" size={36} color={Colors.light.tint} />
+          <ThemedText style={styles.quickActionButtonText}>Ajustes</ThemedText>
+        </TouchableOpacity>
+      </View>
+
+      {/* Últimas 4 Transações */}
+      <ThemedText type="subtitle" style={styles.sectionTitle}>Últimas Transações</ThemedText>
       {transactions.length > 0 ? (
         transactions.map((item) => (
           <ThemedView key={item.id} style={styles.transactionItem}>
@@ -109,7 +165,7 @@ const HomeScreen = () => {
           </ThemedView>
         ))
       ) : (
-        <ThemedText style={styles.noTransactionsText}>Nenhuma transação registrada ainda.</ThemedText>
+        <ThemedText style={styles.noTransactionsText}>Nenhuma transação recente.</ThemedText>
       )}
     </ScrollView>
   );
@@ -130,96 +186,183 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   header: {
-    marginBottom: 20,
+    marginBottom: 25,
     textAlign: 'center',
   },
-  balanceCard: {
-    backgroundColor: Colors.light.tint,
-    borderRadius: 15,
+  sectionTitle: {
+    marginBottom: 15,
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: Colors.light.text,
+    textAlign: 'center',
+    marginTop: 25, // Mais espaço antes de cada nova seção principal
+  },
+
+  // --- Novo Card de Saldo Central ---
+  newBalanceCard: {
+    backgroundColor: Colors.light.tint, // Cor principal do tema
+    borderRadius: 20, // Cantos mais arredondados
     padding: 25,
     marginBottom: 30,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 8 }, // Sombra mais pronunciada para "flutuar"
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 15,
   },
   balanceCardTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    marginBottom: 10,
+    marginBottom: 15,
   },
-  balanceLabel: {
+  newBalanceLabel: {
     fontSize: 18,
     color: '#fff',
     fontWeight: 'normal',
+    opacity: 0.9,
   },
-  extractButtonTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-  },
-  extractButtonTextTop: {
-    fontSize: 14,
-    color: '#fff',
-    fontWeight: '500',
-    marginRight: 5,
-  },
-  balanceValueWithToggle: { // Novo container para o valor e o toggle
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 10,
-    paddingVertical: 2, // Espaçamento interno para evitar corte
-  },
-  balanceValueWrapper: { // Wrapper para o valor do saldo para aplicar o blur
-    flexDirection: 'row',
-    alignItems: 'flex-end', // Alinha R$ e o valor na base
-    position: 'relative',
-    overflow: 'hidden', // Importante para o blur não vazar
-    borderRadius: 5, // Pequeno arredondamento para o blur
-  },
-  currencySymbol: {
-    fontSize: 24, // Tamanho menor para o "R$"
-    fontWeight: 'bold',
-    color: '#fff',
-    marginRight: 5, // Espaço entre R$ e o valor
-    marginBottom: 2, // Alinhar R$ com a base do número
-  },
-  balanceValue: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#fff',
-    lineHeight: 45, // Ajustar line height para evitar corte vertical
-  },
-  eyeIconContainer: {
+  newEyeIconContainer: {
     padding: 5,
-    // Remover marginLeft se estiver desalinhando.
-    // O justifyContent no balanceValueWithToggle já cuida do espaçamento.
   },
-  yieldText: {
-    fontSize: 14,
+  newBalanceValueWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginBottom: 20, // Mais espaço abaixo do valor principal
+  },
+  newCurrencySymbol: {
+    fontSize: 32, // Símbolo R$ maior
+    fontWeight: 'bold',
     color: '#fff',
-    opacity: 0.8,
+    marginRight: 8,
+    lineHeight: 48, // Ajustar para alinhar com o valor grande
+  },
+  newBalanceValue: {
+    fontSize: 56, // Valor muito maior para destaque
+    fontWeight: 'bold',
+    color: '#fff',
+    lineHeight: 60, // Ajustar line height para não cortar
+  },
+  newHiddenBalancePlaceholder: {
+    fontSize: 56,
+    fontWeight: 'bold',
+    color: 'rgba(255,255,255,0.7)',
+    lineHeight: 60,
+  },
+  newYieldText: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.9)',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    marginBottom: 15,
+    gap: 8,
+    marginBottom: 20, // Espaço antes do botão
     alignSelf: 'flex-start',
   },
-  sectionHeader: {
-    marginBottom: 15,
-    textAlign: 'center',
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: Colors.light.text,
+  newExtractButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center', // Centralizar texto e ícone no botão
+    backgroundColor: 'rgba(255,255,255,0.25)', // Fundo semitransparente mais forte
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25, // Mais arredondado
+    alignSelf: 'center', // Centralizar o botão no card
+    minWidth: '70%', // Largura mínima
   },
+  newExtractButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600',
+    marginRight: 8,
+  },
+
+  // --- Visão Geral do Mês - Nova Apresentação ---
+  monthlySummaryCard: {
+    backgroundColor: Colors.light.background,
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  monthlySummaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 15,
+  },
+  monthlySummaryItem: {
+    alignItems: 'center',
+    flex: 1, // Ocupa espaço igual
+    paddingHorizontal: 5,
+  },
+  monthlySummaryLabel: {
+    fontSize: 14,
+    color: Colors.light.icon,
+    marginTop: 8,
+    marginBottom: 5,
+  },
+  monthlySummaryValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  monthlySummaryNetBalance: {
+    borderTopWidth: 1,
+    borderTopColor: Colors.light.tabIconDefault,
+    paddingTop: 15,
+    marginTop: 10,
+    alignItems: 'center', // Centraliza o saldo líquido
+  },
+  monthlySummaryNetLabel: {
+    fontSize: 16,
+    color: Colors.light.text,
+    marginBottom: 5,
+  },
+  monthlySummaryNetValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  overviewValueIn: {
+    color: '#28a745',
+  },
+  overviewValueOut: {
+    color: '#dc3545',
+  },
+
+  // --- Ações Rápidas - Grade Compacta ---
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between', // Distribui os itens uniformemente
+    marginBottom: 30,
+  },
+  quickActionButton: {
+    width: (screenWidth / 2) - 35, // Calcula a largura para 2 colunas com padding
+    aspectRatio: 1.1, // Mantém proporção próxima de quadrado
+    backgroundColor: Colors.light.background,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15, // Espaçamento entre as linhas
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+    padding: 10, // Padding interno para não espremer conteúdo
+  },
+  quickActionButtonText: {
+    fontSize: 13, // Menor para caber em 2 colunas
+    fontWeight: '500',
+    color: Colors.light.text,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+
+  // --- Últimas Transações (reusado e adaptado) ---
   transactionItem: {
     backgroundColor: Colors.light.background,
     padding: 15,
