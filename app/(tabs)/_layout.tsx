@@ -1,9 +1,10 @@
+// mobile/app/(tabs)/_layout.tsx
+import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -18,28 +19,117 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
+        tabBarStyle: {
+          ...styles.tabBar,
+          backgroundColor: Colors[colorScheme ?? 'light'].background,
+          ...(Platform.OS === 'ios' ? styles.iosTabBar : styles.androidWebTabBar),
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+        },
+        tabBarIconStyle: {
+          justifyContent: 'center',
+          alignItems: 'center',
+        }
       }}>
+      {/* 1. Início */}
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Início',
+          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
         }}
       />
+      {/* 2. Investimentos */}
       <Tabs.Screen
-        name="explore"
+        name="investments"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Invest.',
+          tabBarIcon: ({ color }) => <Ionicons name="trending-up-outline" size={24} color={color} />,
+        }}
+      />
+      {/* 3. Adicionar Transação (Botão Central) */}
+      <Tabs.Screen
+        name="add"
+        options={{
+          title: 'Adicionar',
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={[
+                styles.addTabButton,
+                focused && { backgroundColor: Colors[colorScheme ?? 'light'].tint },
+              ]}
+            >
+              <Ionicons name="add" size={30} color={focused ? '#fff' : Colors[colorScheme ?? 'light'].tabIconDefault} />
+            </View>
+          ),
+          tabBarLabel: () => null,
+        }}
+      />
+      {/* 4. Extrato */}
+      <Tabs.Screen
+        name="extract"
+        options={{
+          title: 'Extrato',
+          tabBarIcon: ({ color }) => <Ionicons name="receipt-outline" size={24} color={color} />,
+        }}
+      />
+      {/* 5. Conta */}
+      <Tabs.Screen
+        name="profile" // O nome do arquivo da tela é 'profile.tsx'
+        options={{
+          title: 'Conta', // O rótulo da aba será 'Conta'
+          tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={24} color={color} />, // Ícone de pessoa
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    height: Platform.OS === 'ios' ? 90 : 60, // Altura base da barra
+    borderTopWidth: 0,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: 'hidden',
+    paddingHorizontal: 10,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 0, // Espaço para a safe area no iOS
+  },
+  iosTabBar: {
+    backgroundColor: 'transparent',
+  },
+  androidWebTabBar: {
+    backgroundColor: Colors.light.background,
+  },
+  addTabButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Colors.light.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // Ajuste aqui para garantir que o botão não seja cortado
+    // O valor exato pode variar ligeiramente, mas -30px (marginTop) e 20px (marginBottom) ou mais
+    // no iOS e menos no Android geralmente funcionam bem.
+    marginBottom: Platform.OS === 'ios' ? 20 : 0, // Aumentado para dar mais espaço embaixo do botão no iOS
+    marginTop: Platform.OS === 'ios' ? -35 : -25, // Levanta mais o botão para compensar o corte e centralizar
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+    borderWidth: 4,
+    borderColor: Colors.light.background,
+  },
+});
